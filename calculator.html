@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CalcPro - Interactive Scientific Calculator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00d4ff;
+            --secondary: #ff006e;
+            --accent: #8338ec;
+            --success: #00f5ff;
+            --warning: #ffbe0b;
+            --danger: #fb5607;
+            --dark: #0a0a0a;
+            --darker: #050505;
+            --card: #1a1a1a;
+            --border: #333;
+            --text: #ffffff;
+            --text-muted: #888;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glow: rgba(0, 212, 255, 0.3);
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            overflow: hidden;
+        }
+
+        /* Animated Background Grid */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            z-index: -2;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Floating Orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            filter: blur(80px);
+            opacity: 0.2;
+            animation: float 12s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        .orb:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            top: -200px;
+            left: -200px;
+            animation-delay: 0s;
+        }
+
+        .orb:nth-child(2) {
+            width: 300px;
+            height: 300px;
+            top: 50%;
+            right: -150px;
+            animation-delay: 4s;
+        }
+
+        .orb:nth-child(3) {
+            width: 350px;
+            height: 350px;
+            bottom: -175px;
+            left: 30%;
+            animation-delay: 8s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-30px) rotate(120deg); }
+            66% { transform: translateY(20px) rotate(240deg); }
+        }
+
+        /* Main Container */
+        .calculator-container {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+            max-width: 1000px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Calculator Main */
+        .calculator {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Display Section */
+        .display-section {
+            margin-bottom: 2rem;
+        }
+
+        .display {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: right;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            animation: scan 3s ease-in-out infinite;
+        }
+
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .expression {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            min-height: 20px;
+            word-break: break-all;
+        }
+
+        .result {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-shadow: 0 0 20px var(--glow);
+            animation: resultGlow 0.5s ease;
+            word-break: break-all;
+        }
+
+        @keyframes resultGlow {
+            0% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .mode-toggle {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            color: var(--text);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-toggle:hover {
+            background: var(--primary);
+            color: var(--dark);
+            transform: scale(1.05);
+        }
+
+        /* Button Grid */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+        }
+
+        .btn {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 1rem;
+            color: var(--text);
+            font-size: 1.1rem;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .btn:hover::before {
+            transform: translateX(100%);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-color: var(--primary);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+            animation: btnPress 0.1s ease;
+        }
+
+        @keyframes btnPress {
+            0% { box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4); }
+            100% { box-shadow: 0 2px 5px rgba(0, 212, 255, 0.2); }
+        }
+
+        /* Button Types */
+        .btn-number {
+            background: linear-gradient(135deg, var(--glass), rgba(255, 255, 255, 0.08));
+        }
+
+        .btn-number:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 212, 255, 0.1));
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--glow);
+        }
+
+        .btn-operator {
+            background: linear-gradient(135deg, rgba(255, 0, 110, 0.1), rgba(255, 0, 110, 0.05));
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .btn-operator:hover {
+            background: linear-gradient(135deg, var(--secondary), rgba(255, 0, 110, 0.8));
+            color: white;
+            box-shadow: 0 10px 30px rgba(255, 0, 110, 0.4);
+        }
+
+        .btn-function {
+            background: linear-gradient(135deg, rgba(131, 56, 236, 0.1), rgba(131, 56, 236, 0.05));
+            color: var(--accent);
+            font-size: 0.9rem;
+        }
+
+        .btn-function:hover {
+            background: linear-gradient(135deg, var(--accent), rgba(131, 56, 236, 0.8));
+            color: white;
+            box-shadow: 0 10px 30px rgba(131, 56, 236, 0.4);
+        }
+
+        .btn-equals {
+            background: linear-gradient(135deg, var(--success), rgba(0, 245, 255, 0.8));
+            color: var(--dark);
+            font-weight: 700;
+            grid-column: span 2;
+        }
+
+        .btn-equals:hover {
+            background: linear-gradient(135deg, rgba(0, 245, 255, 0.9), var(--success));
+            box-shadow: 0 15px 40px rgba(0, 245, 255, 0.5);
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, var(--danger), rgba(251, 86, 7, 0.8));
+            color: white;
+            font-weight: 600;
+        }
+
+        .btn-clear:hover {
+            background: linear-gradient(135deg, rgba(251, 86, 7, 0.9), var(--danger));
+            box-shadow: 0 10px 30px rgba(251, 86, 7, 0.4);
+        }
+
+        /* History Panel */
+        .history-panel {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            padding: 1.5rem;
+            height: fit-content;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .history-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .clear-history {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-history:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .history-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: slideInRight 0.3s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .history-item:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: var(--primary);
+            transform: translateX(-5px);
+        }
+
+        .history-expression {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .history-result {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .empty-history {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            padding: 2rem 1rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .calculator-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .button-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .btn-equals {
+                grid-column: span 2;
+            }
+
+            .result {
+                font-size: 2rem;
+            }
+
+            .btn {
+                min-height: 50px;
+                font-size: 1rem;
+            }
+
+            .display {
+                min-height: 100px;
+                padding: 1rem;
+            }
+        }
+
+        /* Scientific Mode Styles */
+        .scientific-mode .button-grid {
+            grid-template-columns: repeat(6, 1fr);
+        }
+
+        .btn-span-2 {
+            grid-column: span 2;
+        }
+
+        /* Custom Scrollbar */
+        .history-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .history-panel::-webkit-scrollbar-track {
+            background: var(--dark);
+            border-radius: 3px;
+        }
+
+        .history-panel::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        .history-panel::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+
+        /* Error State */
+        .error {
+            color: var(--danger) !important;
+            text-shadow: 0 0 10px rgba(251, 86, 7, 0.5) !important;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+
+    <div class="calculator-container">
+        <!-- Main Calculator -->
+        <div class="calculator">
+            <div class="mode-toggle" id="modeToggle">Scientific Mode</div>
+            
+            <div class="display-section">
+                <div class="display">
+                    <div class="expression" id="expression"></div>
+                    <div class="result" id="result">0</div>
+                </div>
+            </div>
+
+            <div class="button-grid" id="buttonGrid">
+                <!-- Row 1 -->
+                <button class="btn btn-clear" data-action="clear">AC</button>
+                <button class="btn btn-clear" data-action="backspace">⌫</button>
+                <button class="btn btn-function" data-action="percent">%</button>
+                <button class="btn btn-operator" data-value="/">÷</button>
+                <button class="btn btn-function" data-action="power">x²</button>
+
+                <!-- Row 2 -->
+                <button class="btn btn-number" data-value="7">7</button>
+                <button class="btn btn-number" data-value="8">8</button>
+                <button class="btn btn-number" data-value="9">9</button>
+                <button class="btn btn-operator" data-value="*">×</button>
+                <button class="btn btn-function" data-action="sqrt">√</button>
+
+                <!-- Row 3 -->
+                <button class="btn btn-number" data-value="4">4</button>
+                <button class="btn btn-number" data-value="5">5</button>
+                <button class="btn btn-number" data-value="6">6</button>
+                <button class="btn btn-operator" data-value="-">-</button>
+                <button class="btn btn-function" data-action="sin">sin</button>
+
+                <!-- Row 4 -->
+                <button class="btn btn-number" data-value="1">1</button>
+                <button class="btn btn-number" data-value="2">2</button>
+                <button class="btn btn-number" data-value="3">3</button>
+                <button class="btn btn-operator" data-value="+">+</button>
+                <button class="btn btn-function" data-action="cos">cos</button>
+
+                <!-- Row 5 -->
+                <button class="btn btn-number" data-value="0">0</button>
+                <button class="btn btn-number" data-value=".">.</button>
+                <button class="btn btn-function" data-action="negate">±</button>
+                <button class="btn btn-equals" data-action="equals">=</button>
+            </div>
+        </div>
+
+        <!-- History Panel -->
+        <div class="history-panel">
+            <div class="history-header">
+                <h3 class="history-title">History</h3>
+                <button class="clear-history" id="clearHistory">Clear</button>
+            </div>
+            <div class="history-list" id="historyList">
+                <div class="empty-history">No calculations yet</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ScientificCalculator {
+            constructor() {
+                this.expression = '';
+                this.result = '0';
+                this.history = JSON.parse(localStorage.getItem('calc-history') || '[]');
+                this.isScientificMode = false;
+                this.lastResult = 0;
+                
+                this.initializeElements();
+                this.attachEventListeners();
+                this.updateDisplay();
+                this.renderHistory();
+            }
+
+            initializeElements() {
+                this.expressionEl = document.getElementById('expression');
+                this.resultEl = document.getElementById('result');
+                this.historyListEl = document.getElementById('historyList');
+                this.modeToggleEl = document.getElementById('modeToggle');
+                this.buttonGridEl = document.getElementById('buttonGrid');
+            }
+
+            attachEventListeners() {
+                // Button clicks
+                this.buttonGridEl.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('btn')) {
+                        this.handleButtonClick(e.target);
+                    }
+                });
+
+                // Keyboard support
+                document.addEventListener('keydown', (e) => {
+                    this.handleKeyPress(e);
+                });
+
+                // Mode toggle
+                this.modeToggleEl.addEventListener('click', () => {
+                    this.toggleMode();
+                });
+
+                // Clear history
+                document.getElementById('clearHistory').addEventListener('click', () => {
+                    this.clearHistory();
+                });
+
+                // History item clicks
+                this.historyListEl.addEventListener('click', (e) => {
+                    const historyItem = e.target.closest('.history-item');
+                    if (historyItem) {
+                        const result = historyItem.querySelector('.history-result').textContent;
+                        this.result = result;
+                        this.expression = '';
+                        this.updateDisplay();
+                    }
+                });
+            }
+
+            handleButtonClick(button) {
+                const action = button.dataset.action;
+                const value = button.dataset.value;
+
+                // Add click animation
+                button.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    button.style.transform = '';
+                }, 100);
+
+                if (action) {
+                    this.performAction(action);
+                } else if (value) {
+                    this.inputValue(value);
+                }
+            }
+
+            handleKeyPress(e) {
+                e.preventDefault();
+                
+                const key = e.key;
+                const keyMap = {
+                    '0': () => this.inputValue('0'),
+                    '1': () => this.inputValue('1'),
+                    '2': () => this.inputValue('2'),
+                    '3': () => this.inputValue('3'),
+                    '4': () => this.inputValue('4'),
+                    '5': () => this.inputValue('5'),
+                    '6': () => this.inputValue('6'),
+                    '7': () => this.inputValue('7'),
+                    '8': () => this.inputValue('8'),
+                    '9': () => this.inputValue('9'),
+                    '.': () => this.inputValue('.'),
+                    '+': () => this.inputValue('+'),
+                    '-': () => this.inputValue('-'),
+                    '*': () => this.inputValue('*'),
+                    '/': () => this.inputValue('/'),
+                    'Enter': () => this.performAction('equals'),
+                    '=': () => this.performAction('equals'),
+                    'Escape': () => this.performAction('clear'),
+                    'Backspace': () => this.performAction('backspace'),
+                    '%': () => this.performAction('percent')
+                };
+
+                if (keyMap[key]) {
+                    keyMap[key]();
+                    // Highlight corresponding button
+                    this.highlightButton(key);
+                }
+            }
+
+            highlightButton(key) {
+                const buttonMap = {
+                    'Enter': '[data-action="equals"]',
+                    '=': '[data-action="equals"]',
+                    'Escape': '[data-action="clear"]',
+                    'Backspace': '[data-action="backspace"]',
+                    '%': '[data-action="percent"]'
+                };
+
+                let selector = buttonMap[key] || `[data-value="${key}"]`;
+                const button = document.querySelector(selector);
+                
+                if (button) {
+                    button.style.background = 'rgba(0, 212, 255, 0.3)';
+                    setTimeout(() => {
+                        button.style.background = '';
+                    }, 200);
+                }
+            }
+
+            inputValue(value) {
+                if (this.resultEl.classList.contains('error')) {
+                    this.performAction('clear');
+                }
+
+                // Handle operators
+                if (['+', '-', '*', '/'].includes(value)) {
+                    if (this.expression === '') {
+                        // Start new expression with current result
+                        this.expression = this.result + ' ' + value + ' ';
+                        this.result = '0';
+                    } else if (this.result !== '0' && this.result !== '') {
+                        // Complete current expression and start new one
+                        this.expression += this.result + ' ' + value + ' ';
+                        this.result = '0';
+                    } else {
+                        // Replace last operator if result is empty
+                        this.expression = this.expression.replace(/ [+\-*/] $/, ' ' + value + ' ');
+                    }
+                }
+                // Handle numbers and decimal
+                else {
+                    if (this.result === '0' && value !== '.') {
+                        this.result = value;
+                    } else if (this.result === '0' && value === '.') {
+                        this.result = '0.';
+                    } else {
+                        // Prevent multiple decimals
+                        if (value === '.' && this.result.includes('.')) {
+                            return;
+                        }
+                        this.result += value;
+                    }
+                }
+
+                this.updateDisplay();
+            }
+
+            performAction(action) {
+                switch (action) {
+                    case 'clear':
+                        this.clear();
+                        break;
+                    case 'backspace':
+                        this.backspace();
+                        break;
+                    case 'equals':
+                        this.calculate();
+                        break;
+                    case 'percent':
+                        this.percent();
+                        break;
+                    case 'power':
+                        this.power();
+                        break;
+                    case 'sqrt':
+                        this.sqrt();
+                        break;
+                    case 'sin':
+                        this.sin();
+                        break;
+                    case 'cos':
+                        this.cos();
+                        break;
+                    case 'negate':
+                        this.negate();
+                        break;
+                }
+            }
+
+            clear() {
+                this.expression = '';
+                this.result = '0';
+                this.resultEl.classList.remove('error');
+                this.updateDisplay();
+            }
+
+            backspace() {
+                if (this.result !== '0' && this.result.length > 0) {
+                    if (this.result.length > 1) {
+                        this.result = this.result.slice(0, -1);
+                    } else {
+                        this.result = '0';
+                    }
+                } else if (this.expression) {
+                    // Remove from expression if result is empty
+                    this.expression = this.expression.trim();
+                    if (this.expression.endsWith(' ')) {
+                        // Remove operator
+                        this.expression = this.expression.slice(0, -3);
+                    } else {
+                        // Remove last character from expression
+                        this.expression = this.expression.slice(0, -1);
+                    }
+                }
+                this.updateDisplay();
+            }
+
+            calculate() {
+                try {
+                    let fullExpression;
+                    
+                    // If we have expression and result, combine them
+                    if (this.expression && this.result !== '0') {
+                        fullExpression = this.expression + this.result;
+                    } 
+                    // If only result exists, just return it
+                    else if (!this.expression && this.result !== '0') {
+                        return;
+                    }
+                    // If only expression exists, evaluate it
+                    else if (this.expression) {
+                        fullExpression = this.expression.trim();
+                        // Remove trailing operator if exists
+                        fullExpression = fullExpression.replace(/ [+\-*/] $/, '');
+                    }
+                    else {
+                        return;
+                    }
+
+                    if (!fullExpression || fullExpression.trim() === '') return;
+
+                    // Replace display operators with JavaScript operators
+                    fullExpression = fullExpression.replace(/×/g, '*').replace(/÷/g, '/');
+                    
+                    console.log('Calculating:', fullExpression); // Debug
+                    
+                    // Safe evaluation
+                    const calculatedResult = this.safeEvaluate(fullExpression);
+                    
+                    if (calculatedResult === null || !isFinite(calculatedResult)) {
+                        throw new Error('Invalid calculation');
+                    }
+
+                    // Add to history
+                    this.addToHistory(fullExpression.replace(/\*/g, '×').replace(/\//g, '÷'), calculatedResult);
+                    
+                    this.lastResult = calculatedResult;
+                    this.result = this.formatResult(calculatedResult);
+                    this.expression = '';
+                    
+                    this.updateDisplay();
+                    this.animateResult();
+                    
+                } catch (error) {
+                    console.error('Calculation error:', error); // Debug
+                    this.showError('Error');
+                }
+            }
+
+            safeEvaluate(expression) {
+                // Only allow numbers, operators, parentheses, and decimal points
+                if (!/^[0-9+\-*/(). ]+$/.test(expression)) {
+                    throw new Error('Invalid characters');
+                }
+                
+                try {
+                    return Function('"use strict"; return (' + expression + ')')();
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            percent() {
+                const num = parseFloat(this.result);
+                this.result = this.formatResult(num / 100);
+                this.updateDisplay();
+                this.animateResult();
+            }
+
+            power() {
+                const num = parseFloat(this.result);
+                this.result = this.formatResult(Math.pow(num, 2));
+                this.updateDisplay();
+                this.animateResult();
+            }
+
+            sqrt() {
+                const num = parseFloat(this.result);
+                if (num < 0) {
+                    this.showError('Invalid Input');
+                    return;
+                }
+                this.result = this.formatResult(Math.sqrt(num));
+                this.updateDisplay();
+                this.animateResult();
+            }
+
+            sin() {
+                const num = parseFloat(this.result);
+                const radians = num * (Math.PI / 180);
+                this.result = this.formatResult(Math.sin(radians));
+                this.updateDisplay();
+                this.animateResult();
+            }
+
+            cos() {
+                const num = parseFloat(this.result);
+                const radians = num * (Math.PI / 180);
+                this.result = this.formatResult(Math.cos(radians));
+                this.updateDisplay();
+                this.animateResult();
+            }
+
+            negate() {
+                if (this.result !== '0') {
+                    this.result = this.result.startsWith('-') ? 
+                        this.result.slice(1) : '-' + this.result;
+                    this.updateDisplay();
+                }
+            }
+
+            formatResult(num) {
+                if (Math.abs(num) > 1e15 || (Math.abs(num) < 1e-6 && num !== 0)) {
+                    return num.toExponential(6);
+                }
+                
+                const rounded = Math.round(num * 1e12) / 1e12;
+                return rounded.toString();
+            }
+
+            showError(message) {
+                this.result = message;
+                this.resultEl.classList.add('error');
+                this.updateDisplay();
+                
+                setTimeout(() => {
+                    this.clear();
+                }, 2000);
+            }
+
+            animateResult() {
+                this.resultEl.style.animation = 'none';
+                requestAnimationFrame(() => {
+                    this.resultEl.style.animation = 'resultGlow 0.5s ease';
+                });
+            }
+
+            updateDisplay() {
+                this.expressionEl.textContent = this.expression;
+                this.resultEl.textContent = this.result;
+            }
+
+            addToHistory(expression, result) {
+                const historyItem = {
+                    expression,
+                    result: this.formatResult(result),
+                    timestamp: new Date().toLocaleTimeString()
+                };
+
+                this.history.unshift(historyItem);
+                
+                // Keep only last 20 items
+                if (this.history.length > 20) {
+                    this.history = this.history.slice(0, 20);
+                }
+
+                this.saveHistory();
+                this.renderHistory();
+                            }
+
+            saveHistory() {
+                localStorage.setItem('calc-history', JSON.stringify(this.history));
+            }
+
+            renderHistory() {
+                this.historyListEl.innerHTML = '';
+
+                this.history.forEach(item => {
+                    const li = document.createElement('li');
+                    li.classList.add('history-item');
+                    li.innerHTML = `
+                        <span class="history-expression">${item.expression}</span>
+                        <span class="history-result">${item.result}</span>
+                        <span class="history-time">${item.timestamp}</span>
+                    `;
+                    this.historyListEl.appendChild(li);
+                });
+            }
+        }
+
+        // Inisialisasi kalkulator saat DOM siap
+        document.addEventListener('DOMContentLoaded', () => {
+            new ScientificCalculator();
+        });
+</script>
