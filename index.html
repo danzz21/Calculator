@@ -1,990 +1,887 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CalcPro - Interactive Scientific Calculator</title>
+    <title>Kalkulator Multi-Fungsi</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        :root {
-            --primary: #00d4ff;
-            --secondary: #ff006e;
-            --accent: #8338ec;
-            --success: #00f5ff;
-            --warning: #ffbe0b;
-            --danger: #fb5607;
-            --dark: #0a0a0a;
-            --darker: #050505;
-            --card: #1a1a1a;
-            --border: #333;
-            --text: #ffffff;
-            --text-muted: #888;
-            --glass: rgba(255, 255, 255, 0.05);
-            --glow: rgba(0, 212, 255, 0.3);
-        }
-
         body {
-            font-family: 'JetBrains Mono', monospace;
-            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
-            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            padding: 20px;
             display: flex;
-            align-items: center;
             justify-content: center;
-            padding: 1rem;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
             overflow: hidden;
         }
 
-        /* Animated Background Grid */
-        .bg-grid {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: gridMove 20s linear infinite;
-            z-index: -2;
-        }
-
-        @keyframes gridMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
-        }
-
-        /* Floating Orbs */
-        .orb {
-            position: fixed;
-            border-radius: 50%;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            filter: blur(80px);
-            opacity: 0.2;
-            animation: float 12s ease-in-out infinite;
-            z-index: -1;
-        }
-
-        .orb:nth-child(1) {
-            width: 400px;
-            height: 400px;
-            top: -200px;
-            left: -200px;
-            animation-delay: 0s;
-        }
-
-        .orb:nth-child(2) {
-            width: 300px;
-            height: 300px;
-            top: 50%;
-            right: -150px;
-            animation-delay: 4s;
-        }
-
-        .orb:nth-child(3) {
-            width: 350px;
-            height: 350px;
-            bottom: -175px;
-            left: 30%;
-            animation-delay: 8s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-30px) rotate(120deg); }
-            66% { transform: translateY(20px) rotate(240deg); }
-        }
-
-        /* Main Container */
-        .calculator-container {
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 2rem;
-            max-width: 1000px;
-            width: 100%;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Calculator Main */
-        .calculator {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 25px;
-            padding: 2rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .calculator::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-
-        /* Display Section */
-        .display-section {
-            margin-bottom: 2rem;
-        }
-
-        .display {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 1.5rem;
-            text-align: right;
-            min-height: 120px;
+        .tabs {
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-            overflow: hidden;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
         }
 
-        .display::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #f8f9fa;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scientific Calculator */
+        .calc-display {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: right;
+            font-size: 24px;
+            font-weight: bold;
+            min-height: 60px;
+            word-wrap: break-word;
+            color: #333;
+        }
+
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .calc-btn {
+            padding: 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .calc-btn:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .calc-btn:active {
+            transform: translateY(0);
+        }
+
+        .calc-btn.operator {
+            background: #667eea;
+            color: white;
+        }
+
+        .calc-btn.operator:hover {
+            background: #5568d3;
+        }
+
+        .calc-btn.equals {
+            background: #28a745;
+            color: white;
+            grid-column: span 2;
+        }
+
+        .calc-btn.equals:hover {
+            background: #218838;
+        }
+
+        .calc-btn.clear {
+            background: #dc3545;
+            color: white;
+        }
+
+        .calc-btn.clear:hover {
+            background: #c82333;
+        }
+
+        /* Converter */
+        .converter-group {
+            margin-bottom: 25px;
+        }
+
+        .converter-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .converter-group input,
+        .converter-group select {
             width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
-            animation: scan 3s ease-in-out infinite;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border 0.3s;
         }
 
-        @keyframes scan {
-            0% { left: -100%; }
-            100% { left: 100%; }
+        .converter-group input:focus,
+        .converter-group select:focus {
+            outline: none;
+            border-color: #667eea;
         }
 
-        .expression {
-            font-size: 1rem;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-            min-height: 20px;
-            word-break: break-all;
+        .convert-btn {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+
+        .convert-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
         }
 
         .result {
-            font-size: 2.5rem;
-            font-weight: 600;
-            color: var(--primary);
-            text-shadow: 0 0 20px var(--glow);
-            animation: resultGlow 0.5s ease;
-            word-break: break-all;
-        }
-
-        @keyframes resultGlow {
-            0% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        .mode-toggle {
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            background: var(--glass);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 0.5rem 1rem;
-            color: var(--text);
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .mode-toggle:hover {
-            background: var(--primary);
-            color: var(--dark);
-            transform: scale(1.05);
-        }
-
-        /* Button Grid */
-        .button-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 1rem;
-        }
-
-        .btn {
-            background: var(--glass);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 1rem;
-            color: var(--text);
-            font-size: 1.1rem;
-            font-weight: 500;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            user-select: none;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
-            transform: translateX(-100%);
-            transition: transform 0.6s ease;
-        }
-
-        .btn:hover::before {
-            transform: translateX(100%);
-        }
-
-        .btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border-color: var(--primary);
-        }
-
-        .btn:active {
-            transform: scale(0.95);
-            animation: btnPress 0.1s ease;
-        }
-
-        @keyframes btnPress {
-            0% { box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4); }
-            100% { box-shadow: 0 2px 5px rgba(0, 212, 255, 0.2); }
-        }
-
-        /* Button Types */
-        .btn-number {
-            background: linear-gradient(135deg, var(--glass), rgba(255, 255, 255, 0.08));
-        }
-
-        .btn-number:hover {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 212, 255, 0.1));
-            color: var(--primary);
-            text-shadow: 0 0 10px var(--glow);
-        }
-
-        .btn-operator {
-            background: linear-gradient(135deg, rgba(255, 0, 110, 0.1), rgba(255, 0, 110, 0.05));
-            color: var(--secondary);
-            font-weight: 600;
-        }
-
-        .btn-operator:hover {
-            background: linear-gradient(135deg, var(--secondary), rgba(255, 0, 110, 0.8));
-            color: white;
-            box-shadow: 0 10px 30px rgba(255, 0, 110, 0.4);
-        }
-
-        .btn-function {
-            background: linear-gradient(135deg, rgba(131, 56, 236, 0.1), rgba(131, 56, 236, 0.05));
-            color: var(--accent);
-            font-size: 0.9rem;
-        }
-
-        .btn-function:hover {
-            background: linear-gradient(135deg, var(--accent), rgba(131, 56, 236, 0.8));
-            color: white;
-            box-shadow: 0 10px 30px rgba(131, 56, 236, 0.4);
-        }
-
-        .btn-equals {
-            background: linear-gradient(135deg, var(--success), rgba(0, 245, 255, 0.8));
-            color: var(--dark);
-            font-weight: 700;
-            grid-column: span 2;
-        }
-
-        .btn-equals:hover {
-            background: linear-gradient(135deg, rgba(0, 245, 255, 0.9), var(--success));
-            box-shadow: 0 15px 40px rgba(0, 245, 255, 0.5);
-            transform: translateY(-5px) scale(1.02);
-        }
-
-        .btn-clear {
-            background: linear-gradient(135deg, var(--danger), rgba(251, 86, 7, 0.8));
-            color: white;
-            font-weight: 600;
-        }
-
-        .btn-clear:hover {
-            background: linear-gradient(135deg, rgba(251, 86, 7, 0.9), var(--danger));
-            box-shadow: 0 10px 30px rgba(251, 86, 7, 0.4);
-        }
-
-        /* History Panel */
-        .history-panel {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 25px;
-            padding: 1.5rem;
-            height: fit-content;
-            max-height: 600px;
-            overflow-y: auto;
-        }
-
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .history-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .clear-history {
-            background: none;
-            border: 1px solid var(--border);
+            margin-top: 20px;
+            padding: 20px;
+            background: #d4edda;
             border-radius: 10px;
-            padding: 0.5rem 1rem;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .clear-history:hover {
-            background: var(--danger);
-            color: white;
-            border-color: var(--danger);
-        }
-
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .history-item {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            animation: slideInRight 0.3s ease;
-        }
-
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .history-item:hover {
-            background: rgba(0, 212, 255, 0.1);
-            border-color: var(--primary);
-            transform: translateX(-5px);
-        }
-
-        .history-expression {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 0.25rem;
-        }
-
-        .history-result {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .empty-history {
             text-align: center;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            padding: 2rem 1rem;
+            font-size: 18px;
+            font-weight: 600;
+            color: #155724;
+            display: none;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .calculator-container {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .button-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-
-            .btn-equals {
-                grid-column: span 2;
-            }
-
-            .result {
-                font-size: 2rem;
-            }
-
-            .btn {
-                min-height: 50px;
-                font-size: 1rem;
-            }
-
-            .display {
-                min-height: 100px;
-                padding: 1rem;
-            }
+        .result.show {
+            display: block;
+            animation: fadeIn 0.3s;
         }
 
-        /* Scientific Mode Styles */
-        .scientific-mode .button-grid {
-            grid-template-columns: repeat(6, 1fr);
+        h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
         }
 
-        .btn-span-2 {
-            grid-column: span 2;
+        .waris-result-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        /* Custom Scrollbar */
-        .history-panel::-webkit-scrollbar {
-            width: 6px;
+        .waris-result-item h4 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 16px;
         }
 
-        .history-panel::-webkit-scrollbar-track {
-            background: var(--dark);
-            border-radius: 3px;
+        .waris-result-item p {
+            color: #666;
+            margin: 3px 0;
+            font-size: 14px;
         }
 
-        .history-panel::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 3px;
+        .waris-result-item .bagian {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 16px;
         }
 
-        .history-panel::-webkit-scrollbar-thumb:hover {
-            background: var(--secondary);
-        }
-
-        /* Error State */
-        .error {
-            color: var(--danger) !important;
-            text-shadow: 0 0 10px rgba(251, 86, 7, 0.5) !important;
-            animation: shake 0.5s ease-in-out;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin-right: 10px;
+            vertical-align: middle;
         }
     </style>
 </head>
 <body>
-    <div class="bg-grid"></div>
-    <div class="orb"></div>
-    <div class="orb"></div>
-    <div class="orb"></div>
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('scientific')">Scientific</button>
+            <button class="tab" onclick="switchTab('panjang')">Panjang</button>
+            <button class="tab" onclick="switchTab('berat')">Berat</button>
+            <button class="tab" onclick="switchTab('waris')">Waris</button>
+        </div>
 
-    <div class="calculator-container">
-        <!-- Main Calculator -->
-        <div class="calculator">
-            <div class="mode-toggle" id="modeToggle">Scientific Mode</div>
-            
-            <div class="display-section">
-                <div class="display">
-                    <div class="expression" id="expression"></div>
-                    <div class="result" id="result">0</div>
+        <div class="content">
+            <!-- Scientific Calculator -->
+            <div id="scientific" class="tab-content active">
+                <h3>Scientific Calculator</h3>
+                <div class="calc-display" id="display">0</div>
+                <div class="calc-buttons">
+                    <button class="calc-btn" onclick="appendNumber('7')">7</button>
+                    <button class="calc-btn" onclick="appendNumber('8')">8</button>
+                    <button class="calc-btn" onclick="appendNumber('9')">9</button>
+                    <button class="calc-btn operator" onclick="appendOperator('/')">÷</button>
+                    
+                    <button class="calc-btn" onclick="appendNumber('4')">4</button>
+                    <button class="calc-btn" onclick="appendNumber('5')">5</button>
+                    <button class="calc-btn" onclick="appendNumber('6')">6</button>
+                    <button class="calc-btn operator" onclick="appendOperator('*')">×</button>
+                    
+                    <button class="calc-btn" onclick="appendNumber('1')">1</button>
+                    <button class="calc-btn" onclick="appendNumber('2')">2</button>
+                    <button class="calc-btn" onclick="appendNumber('3')">3</button>
+                    <button class="calc-btn operator" onclick="appendOperator('-')">-</button>
+                    
+                    <button class="calc-btn" onclick="appendNumber('0')">0</button>
+                    <button class="calc-btn" onclick="appendNumber('.')">.</button>
+                    <button class="calc-btn clear" onclick="clearDisplay()">C</button>
+                    <button class="calc-btn operator" onclick="appendOperator('+')">+</button>
+                    
+                    <button class="calc-btn operator" onclick="calculateSin()">sin</button>
+                    <button class="calc-btn operator" onclick="calculateCos()">cos</button>
+                    <button class="calc-btn operator" onclick="calculateTan()">tan</button>
+                    <button class="calc-btn operator" onclick="calculateSqrt()">√</button>
+                    
+                    <button class="calc-btn operator" onclick="calculateSquare()">x²</button>
+                    <button class="calc-btn operator" onclick="appendOperator('^')">xⁿ</button>
+                    <button class="calc-btn operator" onclick="calculatePercent()">%</button>
+                    <button class="calc-btn operator" onclick="deleteLast()">⌫</button>
+                    
+                    <button class="calc-btn equals" onclick="calculate()">=</button>
+                    <button class="calc-btn operator" onclick="appendNumber('(')">(</button>
+                    <button class="calc-btn operator" onclick="appendNumber(')')">)</button>
                 </div>
             </div>
 
-            <div class="button-grid" id="buttonGrid">
-                <!-- Row 1 -->
-                <button class="btn btn-clear" data-action="clear">AC</button>
-                <button class="btn btn-clear" data-action="backspace">⌫</button>
-                <button class="btn btn-function" data-action="percent">%</button>
-                <button class="btn btn-operator" data-value="/">÷</button>
-                <button class="btn btn-function" data-action="power">x²</button>
-
-                <!-- Row 2 -->
-                <button class="btn btn-number" data-value="7">7</button>
-                <button class="btn btn-number" data-value="8">8</button>
-                <button class="btn btn-number" data-value="9">9</button>
-                <button class="btn btn-operator" data-value="*">×</button>
-                <button class="btn btn-function" data-action="sqrt">√</button>
-
-                <!-- Row 3 -->
-                <button class="btn btn-number" data-value="4">4</button>
-                <button class="btn btn-number" data-value="5">5</button>
-                <button class="btn btn-number" data-value="6">6</button>
-                <button class="btn btn-operator" data-value="-">-</button>
-                <button class="btn btn-function" data-action="sin">sin</button>
-
-                <!-- Row 4 -->
-                <button class="btn btn-number" data-value="1">1</button>
-                <button class="btn btn-number" data-value="2">2</button>
-                <button class="btn btn-number" data-value="3">3</button>
-                <button class="btn btn-operator" data-value="+">+</button>
-                <button class="btn btn-function" data-action="cos">cos</button>
-
-                <!-- Row 5 -->
-                <button class="btn btn-number" data-value="0">0</button>
-                <button class="btn btn-number" data-value=".">.</button>
-                <button class="btn btn-function" data-action="negate">±</button>
-                <button class="btn btn-equals" data-action="equals">=</button>
+            <!-- Konversi Panjang -->
+            <div id="panjang" class="tab-content">
+                <h3>Konversi Panjang</h3>
+                <div class="converter-group">
+                    <label>Nilai:</label>
+                    <input type="number" id="panjangInput" placeholder="Masukkan nilai">
+                </div>
+                <div class="converter-group">
+                    <label>Dari:</label>
+                    <select id="panjangFrom">
+                        <option value="km">Kilometer (km)</option>
+                        <option value="m">Meter (m)</option>
+                        <option value="cm">Centimeter (cm)</option>
+                    </select>
+                </div>
+                <div class="converter-group">
+                    <label>Ke:</label>
+                    <select id="panjangTo">
+                        <option value="km">Kilometer (km)</option>
+                        <option value="m">Meter (m)</option>
+                        <option value="cm">Centimeter (cm)</option>
+                    </select>
+                </div>
+                <button class="convert-btn" onclick="convertPanjang()">Konversi</button>
+                <div class="result" id="panjangResult"></div>
             </div>
-        </div>
 
-        <!-- History Panel -->
-        <div class="history-panel">
-            <div class="history-header">
-                <h3 class="history-title">History</h3>
-                <button class="clear-history" id="clearHistory">Clear</button>
+            <!-- Konversi Berat -->
+            <div id="berat" class="tab-content">
+                <h3>Konversi Berat</h3>
+                <div class="converter-group">
+                    <label>Nilai:</label>
+                    <input type="number" id="beratInput" placeholder="Masukkan nilai">
+                </div>
+                <div class="converter-group">
+                    <label>Dari:</label>
+                    <select id="beratFrom">
+                        <option value="ton">Ton</option>
+                        <option value="kwintal">Kwintal</option>
+                        <option value="kg">Kilogram (kg)</option>
+                        <option value="g">Gram (g)</option>
+                    </select>
+                </div>
+                <div class="converter-group">
+                    <label>Ke:</label>
+                    <select id="beratTo">
+                        <option value="ton">Ton</option>
+                        <option value="kwintal">Kwintal</option>
+                        <option value="kg">Kilogram (kg)</option>
+                        <option value="g">Gram (g)</option>
+                    </select>
+                </div>
+                <button class="convert-btn" onclick="convertBerat()">Konversi</button>
+                <div class="result" id="beratResult"></div>
             </div>
-            <div class="history-list" id="historyList">
-                <div class="empty-history">No calculations yet</div>
+
+            <!-- Kalkulator Waris Islam -->
+            <div id="waris" class="tab-content">
+                <h3>Kalkulator Waris Islam</h3>
+                <div class="converter-group">
+                    <label>Total Harta Warisan (Rp):</label>
+                    <input type="number" id="totalHarta" placeholder="Masukkan total harta">
+                </div>
+                
+                <h4 style="margin: 20px 0 10px 0; color: #667eea; font-size: 16px;">Ahli Waris:</h4>
+                
+                <div class="converter-group">
+                    <label>
+                        <input type="checkbox" id="suami" onchange="toggleWarisInput('suami')"> Suami
+                    </label>
+                    <input type="number" id="suamiJumlah" style="display:none; margin-top:5px;" placeholder="Jumlah" value="1" disabled>
+                </div>
+
+                <div class="converter-group">
+                    <label>
+                        <input type="checkbox" id="istri" onchange="toggleWarisInput('istri')"> Istri
+                    </label>
+                    <input type="number" id="istriJumlah" style="display:none; margin-top:5px;" placeholder="Jumlah" value="1" min="1">
+                </div>
+
+                <div class="converter-group">
+                    <label>
+                        <input type="checkbox" id="ayah" onchange="toggleWarisInput('ayah')"> Ayah
+                    </label>
+                </div>
+
+                <div class="converter-group">
+                    <label>
+                        <input type="checkbox" id="ibu" onchange="toggleWarisInput('ibu')"> Ibu
+                    </label>
+                </div>
+
+                <div class="converter-group">
+                    <label>
+                        <input type="checkbox" id="anakLaki" onchange="toggleWarisInput('anakLaki')"> Anak Laki-laki
+                    </label>
+                    <input type="number" id="anakLakiJumlah" style="display:none; margin-top:5px;" placeholder="Jumlah" value="1" min="1">
+                </div>
+
+                <div class="converter-group">
+                    <label>
+                        <input type="checkbox" id="anakPerempuan" onchange="toggleWarisInput('anakPerempuan')"> Anak Perempuan
+                    </label>
+                    <input type="number" id="anakPerempuanJumlah" style="display:none; margin-top:5px;" placeholder="Jumlah" value="1" min="1">
+                </div>
+
+                <div class="converter-group">
+                    <label>
+                        <input type="checkbox" id="saudaraLaki" onchange="toggleWarisInput('saudaraLaki')"> Saudara Laki-laki Kandung
+                    </label>
+                    <input type="number" id="saudaraLakiJumlah" style="display:none; margin-top:5px;" placeholder="Jumlah" value="1" min="1">
+                </div>
+
+                <div class="converter-group">
+                    <label>
+                        <input type="checkbox" id="saudaraPerempuan" onchange="toggleWarisInput('saudaraPerempuan')"> Saudara Perempuan Kandung
+                    </label>
+                    <input type="number" id="saudaraPerempuanJumlah" style="display:none; margin-top:5px;" placeholder="Jumlah" value="1" min="1">
+                </div>
+
+                <button class="convert-btn" onclick="hitungWaris()">Hitung Waris</button>
+                <div id="warisResult" style="margin-top: 20px;"></div>
             </div>
         </div>
     </div>
 
     <script>
-        class ScientificCalculator {
-            constructor() {
-                this.expression = '';
-                this.result = '0';
-                this.history = JSON.parse(localStorage.getItem('calc-history') || '[]');
-                this.isScientificMode = false;
-                this.lastResult = 0;
-                
-                this.initializeElements();
-                this.attachEventListeners();
-                this.updateDisplay();
-                this.renderHistory();
+        let currentInput = '0';
+        let operator = '';
+        let previousValue = '';
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.tab');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Scientific Calculator Functions
+        function updateDisplay() {
+            document.getElementById('display').textContent = currentInput || '0';
+        }
+
+        function appendNumber(num) {
+            if (currentInput === '0' && num !== '.') {
+                currentInput = num;
+            } else {
+                currentInput += num;
             }
+            updateDisplay();
+        }
 
-            initializeElements() {
-                this.expressionEl = document.getElementById('expression');
-                this.resultEl = document.getElementById('result');
-                this.historyListEl = document.getElementById('historyList');
-                this.modeToggleEl = document.getElementById('modeToggle');
-                this.buttonGridEl = document.getElementById('buttonGrid');
-            }
+        function appendOperator(op) {
+            currentInput += op;
+            updateDisplay();
+        }
 
-            attachEventListeners() {
-                // Button clicks
-                this.buttonGridEl.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('btn')) {
-                        this.handleButtonClick(e.target);
-                    }
-                });
+        function clearDisplay() {
+            currentInput = '0';
+            operator = '';
+            previousValue = '';
+            updateDisplay();
+        }
 
-                // Keyboard support
-                document.addEventListener('keydown', (e) => {
-                    this.handleKeyPress(e);
-                });
+        function deleteLast() {
+            currentInput = currentInput.slice(0, -1) || '0';
+            updateDisplay();
+        }
 
-                // Mode toggle
-                this.modeToggleEl.addEventListener('click', () => {
-                    this.toggleMode();
-                });
-
-                // Clear history
-                document.getElementById('clearHistory').addEventListener('click', () => {
-                    this.clearHistory();
-                });
-
-                // History item clicks
-                this.historyListEl.addEventListener('click', (e) => {
-                    const historyItem = e.target.closest('.history-item');
-                    if (historyItem) {
-                        const result = historyItem.querySelector('.history-result').textContent;
-                        this.result = result;
-                        this.expression = '';
-                        this.updateDisplay();
-                    }
-                });
-            }
-
-            handleButtonClick(button) {
-                const action = button.dataset.action;
-                const value = button.dataset.value;
-
-                // Add click animation
-                button.style.transform = 'scale(0.95)';
+        function calculate() {
+            try {
+                // Replace ^ with ** for power operation
+                let expression = currentInput.replace(/\^/g, '**');
+                let result = eval(expression);
+                // Hilangkan desimal jika hasil bulat
+                currentInput = (result % 1 === 0 ? result : result.toFixed(2)).toString();
+                updateDisplay();
+            } catch (error) {
+                currentInput = 'Error';
+                updateDisplay();
                 setTimeout(() => {
-                    button.style.transform = '';
-                }, 100);
-
-                if (action) {
-                    this.performAction(action);
-                } else if (value) {
-                    this.inputValue(value);
-                }
-            }
-
-            handleKeyPress(e) {
-                e.preventDefault();
-                
-                const key = e.key;
-                const keyMap = {
-                    '0': () => this.inputValue('0'),
-                    '1': () => this.inputValue('1'),
-                    '2': () => this.inputValue('2'),
-                    '3': () => this.inputValue('3'),
-                    '4': () => this.inputValue('4'),
-                    '5': () => this.inputValue('5'),
-                    '6': () => this.inputValue('6'),
-                    '7': () => this.inputValue('7'),
-                    '8': () => this.inputValue('8'),
-                    '9': () => this.inputValue('9'),
-                    '.': () => this.inputValue('.'),
-                    '+': () => this.inputValue('+'),
-                    '-': () => this.inputValue('-'),
-                    '*': () => this.inputValue('*'),
-                    '/': () => this.inputValue('/'),
-                    'Enter': () => this.performAction('equals'),
-                    '=': () => this.performAction('equals'),
-                    'Escape': () => this.performAction('clear'),
-                    'Backspace': () => this.performAction('backspace'),
-                    '%': () => this.performAction('percent')
-                };
-
-                if (keyMap[key]) {
-                    keyMap[key]();
-                    // Highlight corresponding button
-                    this.highlightButton(key);
-                }
-            }
-
-            highlightButton(key) {
-                const buttonMap = {
-                    'Enter': '[data-action="equals"]',
-                    '=': '[data-action="equals"]',
-                    'Escape': '[data-action="clear"]',
-                    'Backspace': '[data-action="backspace"]',
-                    '%': '[data-action="percent"]'
-                };
-
-                let selector = buttonMap[key] || `[data-value="${key}"]`;
-                const button = document.querySelector(selector);
-                
-                if (button) {
-                    button.style.background = 'rgba(0, 212, 255, 0.3)';
-                    setTimeout(() => {
-                        button.style.background = '';
-                    }, 200);
-                }
-            }
-
-            inputValue(value) {
-                if (this.resultEl.classList.contains('error')) {
-                    this.performAction('clear');
-                }
-
-                // Handle operators
-                if (['+', '-', '*', '/'].includes(value)) {
-                    if (this.expression === '') {
-                        // Start new expression with current result
-                        this.expression = this.result + ' ' + value + ' ';
-                        this.result = '0';
-                    } else if (this.result !== '0' && this.result !== '') {
-                        // Complete current expression and start new one
-                        this.expression += this.result + ' ' + value + ' ';
-                        this.result = '0';
-                    } else {
-                        // Replace last operator if result is empty
-                        this.expression = this.expression.replace(/ [+\-*/] $/, ' ' + value + ' ');
-                    }
-                }
-                // Handle numbers and decimal
-                else {
-                    if (this.result === '0' && value !== '.') {
-                        this.result = value;
-                    } else if (this.result === '0' && value === '.') {
-                        this.result = '0.';
-                    } else {
-                        // Prevent multiple decimals
-                        if (value === '.' && this.result.includes('.')) {
-                            return;
-                        }
-                        this.result += value;
-                    }
-                }
-
-                this.updateDisplay();
-            }
-
-            performAction(action) {
-                switch (action) {
-                    case 'clear':
-                        this.clear();
-                        break;
-                    case 'backspace':
-                        this.backspace();
-                        break;
-                    case 'equals':
-                        this.calculate();
-                        break;
-                    case 'percent':
-                        this.percent();
-                        break;
-                    case 'power':
-                        this.power();
-                        break;
-                    case 'sqrt':
-                        this.sqrt();
-                        break;
-                    case 'sin':
-                        this.sin();
-                        break;
-                    case 'cos':
-                        this.cos();
-                        break;
-                    case 'negate':
-                        this.negate();
-                        break;
-                }
-            }
-
-            clear() {
-                this.expression = '';
-                this.result = '0';
-                this.resultEl.classList.remove('error');
-                this.updateDisplay();
-            }
-
-            backspace() {
-                if (this.result !== '0' && this.result.length > 0) {
-                    if (this.result.length > 1) {
-                        this.result = this.result.slice(0, -1);
-                    } else {
-                        this.result = '0';
-                    }
-                } else if (this.expression) {
-                    // Remove from expression if result is empty
-                    this.expression = this.expression.trim();
-                    if (this.expression.endsWith(' ')) {
-                        // Remove operator
-                        this.expression = this.expression.slice(0, -3);
-                    } else {
-                        // Remove last character from expression
-                        this.expression = this.expression.slice(0, -1);
-                    }
-                }
-                this.updateDisplay();
-            }
-
-            calculate() {
-                try {
-                    let fullExpression;
-                    
-                    // If we have expression and result, combine them
-                    if (this.expression && this.result !== '0') {
-                        fullExpression = this.expression + this.result;
-                    } 
-                    // If only result exists, just return it
-                    else if (!this.expression && this.result !== '0') {
-                        return;
-                    }
-                    // If only expression exists, evaluate it
-                    else if (this.expression) {
-                        fullExpression = this.expression.trim();
-                        // Remove trailing operator if exists
-                        fullExpression = fullExpression.replace(/ [+\-*/] $/, '');
-                    }
-                    else {
-                        return;
-                    }
-
-                    if (!fullExpression || fullExpression.trim() === '') return;
-
-                    // Replace display operators with JavaScript operators
-                    fullExpression = fullExpression.replace(/×/g, '*').replace(/÷/g, '/');
-                    
-                    console.log('Calculating:', fullExpression); // Debug
-                    
-                    // Safe evaluation
-                    const calculatedResult = this.safeEvaluate(fullExpression);
-                    
-                    if (calculatedResult === null || !isFinite(calculatedResult)) {
-                        throw new Error('Invalid calculation');
-                    }
-
-                    // Add to history
-                    this.addToHistory(fullExpression.replace(/\*/g, '×').replace(/\//g, '÷'), calculatedResult);
-                    
-                    this.lastResult = calculatedResult;
-                    this.result = this.formatResult(calculatedResult);
-                    this.expression = '';
-                    
-                    this.updateDisplay();
-                    this.animateResult();
-                    
-                } catch (error) {
-                    console.error('Calculation error:', error); // Debug
-                    this.showError('Error');
-                }
-            }
-
-            safeEvaluate(expression) {
-                // Only allow numbers, operators, parentheses, and decimal points
-                if (!/^[0-9+\-*/(). ]+$/.test(expression)) {
-                    throw new Error('Invalid characters');
-                }
-                
-                try {
-                    return Function('"use strict"; return (' + expression + ')')();
-                } catch (e) {
-                    return null;
-                }
-            }
-
-            percent() {
-                const num = parseFloat(this.result);
-                this.result = this.formatResult(num / 100);
-                this.updateDisplay();
-                this.animateResult();
-            }
-
-            power() {
-                const num = parseFloat(this.result);
-                this.result = this.formatResult(Math.pow(num, 2));
-                this.updateDisplay();
-                this.animateResult();
-            }
-
-            sqrt() {
-                const num = parseFloat(this.result);
-                if (num < 0) {
-                    this.showError('Invalid Input');
-                    return;
-                }
-                this.result = this.formatResult(Math.sqrt(num));
-                this.updateDisplay();
-                this.animateResult();
-            }
-
-            sin() {
-                const num = parseFloat(this.result);
-                const radians = num * (Math.PI / 180);
-                this.result = this.formatResult(Math.sin(radians));
-                this.updateDisplay();
-                this.animateResult();
-            }
-
-            cos() {
-                const num = parseFloat(this.result);
-                const radians = num * (Math.PI / 180);
-                this.result = this.formatResult(Math.cos(radians));
-                this.updateDisplay();
-                this.animateResult();
-            }
-
-            negate() {
-                if (this.result !== '0') {
-                    this.result = this.result.startsWith('-') ? 
-                        this.result.slice(1) : '-' + this.result;
-                    this.updateDisplay();
-                }
-            }
-
-            formatResult(num) {
-                if (Math.abs(num) > 1e15 || (Math.abs(num) < 1e-6 && num !== 0)) {
-                    return num.toExponential(6);
-                }
-                
-                const rounded = Math.round(num * 1e12) / 1e12;
-                return rounded.toString();
-            }
-
-            showError(message) {
-                this.result = message;
-                this.resultEl.classList.add('error');
-                this.updateDisplay();
-                
-                setTimeout(() => {
-                    this.clear();
-                }, 2000);
-            }
-
-            animateResult() {
-                this.resultEl.style.animation = 'none';
-                requestAnimationFrame(() => {
-                    this.resultEl.style.animation = 'resultGlow 0.5s ease';
-                });
-            }
-
-            updateDisplay() {
-                this.expressionEl.textContent = this.expression;
-                this.resultEl.textContent = this.result;
-            }
-
-            addToHistory(expression, result) {
-                const historyItem = {
-                    expression,
-                    result: this.formatResult(result),
-                    timestamp: new Date().toLocaleTimeString()
-                };
-
-                this.history.unshift(historyItem);
-                
-                // Keep only last 20 items
-                if (this.history.length > 20) {
-                    this.history = this.history.slice(0, 20);
-                }
-
-                this.saveHistory();
-                this.renderHistory();
-                            }
-
-            saveHistory() {
-                localStorage.setItem('calc-history', JSON.stringify(this.history));
-            }
-
-            renderHistory() {
-                this.historyListEl.innerHTML = '';
-
-                this.history.forEach(item => {
-                    const li = document.createElement('li');
-                    li.classList.add('history-item');
-                    li.innerHTML = `
-                        <span class="history-expression">${item.expression}</span>
-                        <span class="history-result">${item.result}</span>
-                        <span class="history-time">${item.timestamp}</span>
-                    `;
-                    this.historyListEl.appendChild(li);
-                });
+                    currentInput = '0';
+                    updateDisplay();
+                }, 1500);
             }
         }
 
-        // Inisialisasi kalkulator saat DOM siap
-        document.addEventListener('DOMContentLoaded', () => {
-            new ScientificCalculator();
-        });
-</script>
+        function calculateSin() {
+            try {
+                let value = parseFloat(currentInput);
+                let result = Math.sin(value * Math.PI / 180);
+                currentInput = (result % 1 === 0 ? result : result.toFixed(2)).toString();
+                updateDisplay();
+            } catch (error) {
+                currentInput = 'Error';
+                updateDisplay();
+            }
+        }
 
+        function calculateCos() {
+            try {
+                let value = parseFloat(currentInput);
+                let result = Math.cos(value * Math.PI / 180);
+                currentInput = (result % 1 === 0 ? result : result.toFixed(2)).toString();
+                updateDisplay();
+            } catch (error) {
+                currentInput = 'Error';
+                updateDisplay();
+            }
+        }
+
+        function calculateTan() {
+            try {
+                let value = parseFloat(currentInput);
+                let result = Math.tan(value * Math.PI / 180);
+                currentInput = (result % 1 === 0 ? result : result.toFixed(2)).toString();
+                updateDisplay();
+            } catch (error) {
+                currentInput = 'Error';
+                updateDisplay();
+            }
+        }
+
+        function calculateSqrt() {
+            try {
+                let value = parseFloat(currentInput);
+                let result = Math.sqrt(value);
+                currentInput = (result % 1 === 0 ? result : result.toFixed(2)).toString();
+                updateDisplay();
+            } catch (error) {
+                currentInput = 'Error';
+                updateDisplay();
+            }
+        }
+
+        function calculateSquare() {
+            try {
+                let value = parseFloat(currentInput);
+                let result = value * value;
+                currentInput = (result % 1 === 0 ? result : result.toFixed(2)).toString();
+                updateDisplay();
+            } catch (error) {
+                currentInput = 'Error';
+                updateDisplay();
+            }
+        }
+
+        function calculatePercent() {
+            try {
+                let value = parseFloat(currentInput);
+                let result = value / 100;
+                currentInput = (result % 1 === 0 ? result : result.toFixed(2)).toString();
+                updateDisplay();
+            } catch (error) {
+                currentInput = 'Error';
+                updateDisplay();
+            }
+        }
+
+        // Konversi Panjang
+        function convertPanjang() {
+            const value = parseFloat(document.getElementById('panjangInput').value);
+            const from = document.getElementById('panjangFrom').value;
+            const to = document.getElementById('panjangTo').value;
+
+            if (isNaN(value)) {
+                alert('Masukkan nilai yang valid!');
+                return;
+            }
+
+            // Konversi ke meter dulu (base unit)
+            let meters;
+            switch(from) {
+                case 'km': meters = value * 1000; break;
+                case 'm': meters = value; break;
+                case 'cm': meters = value / 100; break;
+            }
+
+            // Konversi dari meter ke unit tujuan
+            let result;
+            switch(to) {
+                case 'km': result = meters / 1000; break;
+                case 'm': result = meters; break;
+                case 'cm': result = meters * 100; break;
+            }
+
+            const resultDiv = document.getElementById('panjangResult');
+            // Hilangkan desimal jika hasil bulat
+            const displayResult = result % 1 === 0 ? result : result.toFixed(2);
+            resultDiv.textContent = `${value} ${from} = ${displayResult} ${to}`;
+            resultDiv.classList.add('show');
+        }
+
+        // Konversi Berat
+        function convertBerat() {
+            const value = parseFloat(document.getElementById('beratInput').value);
+            const from = document.getElementById('beratFrom').value;
+            const to = document.getElementById('beratTo').value;
+
+            if (isNaN(value)) {
+                alert('Masukkan nilai yang valid!');
+                return;
+            }
+
+            // Konversi ke gram dulu (base unit)
+            let grams;
+            switch(from) {
+                case 'ton': grams = value * 1000000; break;
+                case 'kwintal': grams = value * 100000; break;
+                case 'kg': grams = value * 1000; break;
+                case 'g': grams = value; break;
+            }
+
+            // Konversi dari gram ke unit tujuan
+            let result;
+            switch(to) {
+                case 'ton': result = grams / 1000000; break;
+                case 'kwintal': result = grams / 100000; break;
+                case 'kg': result = grams / 1000; break;
+                case 'g': result = grams; break;
+            }
+
+            const resultDiv = document.getElementById('beratResult');
+            // Hilangkan desimal jika hasil bulat
+            const displayResult = result % 1 === 0 ? result : result.toFixed(2);
+            resultDiv.textContent = `${value} ${from} = ${displayResult} ${to}`;
+            resultDiv.classList.add('show');
+        }
+
+        // Kalkulator Waris Islam
+        function toggleWarisInput(id) {
+            const checkbox = document.getElementById(id);
+            const input = document.getElementById(id + 'Jumlah');
+            
+            if (input) {
+                input.style.display = checkbox.checked ? 'block' : 'none';
+            }
+        }
+
+        function hitungWaris() {
+            const totalHarta = parseFloat(document.getElementById('totalHarta').value);
+            
+            if (isNaN(totalHarta) || totalHarta <= 0) {
+                alert('Masukkan total harta yang valid!');
+                return;
+            }
+
+            // Ambil data ahli waris
+            const ahliWaris = {
+                suami: document.getElementById('suami').checked,
+                istri: document.getElementById('istri').checked,
+                ayah: document.getElementById('ayah').checked,
+                ibu: document.getElementById('ibu').checked,
+                anakLaki: document.getElementById('anakLaki').checked,
+                anakPerempuan: document.getElementById('anakPerempuan').checked,
+                saudaraLaki: document.getElementById('saudaraLaki').checked,
+                saudaraPerempuan: document.getElementById('saudaraPerempuan').checked
+            };
+
+            const jumlah = {
+                istri: ahliWaris.istri ? parseInt(document.getElementById('istriJumlah').value) || 1 : 0,
+                anakLaki: ahliWaris.anakLaki ? parseInt(document.getElementById('anakLakiJumlah').value) || 1 : 0,
+                anakPerempuan: ahliWaris.anakPerempuan ? parseInt(document.getElementById('anakPerempuanJumlah').value) || 1 : 0,
+                saudaraLaki: ahliWaris.saudaraLaki ? parseInt(document.getElementById('saudaraLakiJumlah').value) || 1 : 0,
+                saudaraPerempuan: ahliWaris.saudaraPerempuan ? parseInt(document.getElementById('saudaraPerempuanJumlah').value) || 1 : 0
+            };
+
+            // Hitung pembagian waris
+            let pembagian = [];
+            let sisaHarta = totalHarta;
+
+            // Ada anak
+            const adaAnak = ahliWaris.anakLaki || ahliWaris.anakPerempuan;
+
+            // 1. Suami
+            if (ahliWaris.suami) {
+                let bagianSuami = adaAnak ? totalHarta * 0.25 : totalHarta * 0.5;
+                pembagian.push({
+                    nama: 'Suami',
+                    jumlah: 1,
+                    bagian: adaAnak ? '1/4' : '1/2',
+                    nominal: bagianSuami
+                });
+                sisaHarta -= bagianSuami;
+            }
+
+            // 2. Istri
+            if (ahliWaris.istri) {
+                let bagianIstri = adaAnak ? totalHarta * 0.125 : totalHarta * 0.25;
+                let bagianPerIstri = bagianIstri / jumlah.istri;
+                pembagian.push({
+                    nama: 'Istri',
+                    jumlah: jumlah.istri,
+                    bagian: adaAnak ? '1/8' : '1/4',
+                    nominal: bagianIstri,
+                    perOrang: bagianPerIstri
+                });
+                sisaHarta -= bagianIstri;
+            }
+
+            // 3. Ayah
+            if (ahliWaris.ayah) {
+                let bagianAyah;
+                if (adaAnak) {
+                    bagianAyah = totalHarta * (1/6);
+                    pembagian.push({
+                        nama: 'Ayah',
+                        jumlah: 1,
+                        bagian: '1/6',
+                        nominal: bagianAyah
+                    });
+                } else {
+                    // Ayah dapat sisa jika tidak ada anak
+                    bagianAyah = sisaHarta;
+                    pembagian.push({
+                        nama: 'Ayah',
+                        jumlah: 1,
+                        bagian: 'Ashabah (Sisa)',
+                        nominal: bagianAyah
+                    });
+                }
+                sisaHarta -= bagianAyah;
+            }
+
+            // 4. Ibu
+            if (ahliWaris.ibu) {
+                let bagianIbu;
+                if (adaAnak || (ahliWaris.saudaraLaki && jumlah.saudaraLaki >= 2) || (ahliWaris.saudaraPerempuan && jumlah.saudaraPerempuan >= 2)) {
+                    bagianIbu = totalHarta * (1/6);
+                    pembagian.push({
+                        nama: 'Ibu',
+                        jumlah: 1,
+                        bagian: '1/6',
+                        nominal: bagianIbu
+                    });
+                } else {
+                    bagianIbu = totalHarta * (1/3);
+                    pembagian.push({
+                        nama: 'Ibu',
+                        jumlah: 1,
+                        bagian: '1/3',
+                        nominal: bagianIbu
+                    });
+                }
+                sisaHarta -= bagianIbu;
+            }
+
+            // 5. Anak-anak (bagian ashabah - sisa harta)
+            if (adaAnak && sisaHarta > 0) {
+                // Anak laki-laki mendapat 2x anak perempuan
+                let totalBagian = (jumlah.anakLaki * 2) + jumlah.anakPerempuan;
+                let bagianPerUnit = sisaHarta / totalBagian;
+
+                if (ahliWaris.anakLaki) {
+                    let bagianAnakLaki = bagianPerUnit * 2 * jumlah.anakLaki;
+                    pembagian.push({
+                        nama: 'Anak Laki-laki',
+                        jumlah: jumlah.anakLaki,
+                        bagian: 'Ashabah (2x anak perempuan)',
+                        nominal: bagianAnakLaki,
+                        perOrang: bagianPerUnit * 2
+                    });
+                }
+
+                if (ahliWaris.anakPerempuan) {
+                    let bagianAnakPerempuan = bagianPerUnit * jumlah.anakPerempuan;
+                    pembagian.push({
+                        nama: 'Anak Perempuan',
+                        jumlah: jumlah.anakPerempuan,
+                        bagian: jumlah.anakLaki > 0 ? 'Ashabah (1x)' : (jumlah.anakPerempuan === 1 ? '1/2' : '2/3'),
+                        nominal: bagianAnakPerempuan,
+                        perOrang: bagianPerUnit
+                    });
+                }
+                sisaHarta = 0;
+            } else if (ahliWaris.anakPerempuan && !ahliWaris.anakLaki) {
+                // Anak perempuan saja tanpa anak laki-laki
+                let bagianAnakPerempuan;
+                if (jumlah.anakPerempuan === 1) {
+                    bagianAnakPerempuan = totalHarta * 0.5;
+                    pembagian.push({
+                        nama: 'Anak Perempuan',
+                        jumlah: 1,
+                        bagian: '1/2',
+                        nominal: bagianAnakPerempuan
+                    });
+                } else {
+                    bagianAnakPerempuan = totalHarta * (2/3);
+                    pembagian.push({
+                        nama: 'Anak Perempuan',
+                        jumlah: jumlah.anakPerempuan,
+                        bagian: '2/3',
+                        nominal: bagianAnakPerempuan,
+                        perOrang: bagianAnakPerempuan / jumlah.anakPerempuan
+                    });
+                }
+                sisaHarta -= bagianAnakPerempuan;
+            }
+
+            // 6. Saudara kandung (jika tidak ada anak dan tidak ada ayah)
+            if (!adaAnak && !ahliWaris.ayah && sisaHarta > 0) {
+                if (ahliWaris.saudaraLaki || ahliWaris.saudaraPerempuan) {
+                    let totalBagian = (jumlah.saudaraLaki * 2) + jumlah.saudaraPerempuan;
+                    let bagianPerUnit = sisaHarta / totalBagian;
+
+                    if (ahliWaris.saudaraLaki) {
+                        let bagianSaudaraLaki = bagianPerUnit * 2 * jumlah.saudaraLaki;
+                        pembagian.push({
+                            nama: 'Saudara Laki-laki Kandung',
+                            jumlah: jumlah.saudaraLaki,
+                            bagian: 'Ashabah (2x saudara perempuan)',
+                            nominal: bagianSaudaraLaki,
+                            perOrang: bagianPerUnit * 2
+                        });
+                    }
+
+                    if (ahliWaris.saudaraPerempuan) {
+                        let bagianSaudaraPerempuan = bagianPerUnit * jumlah.saudaraPerempuan;
+                        pembagian.push({
+                            nama: 'Saudara Perempuan Kandung',
+                            jumlah: jumlah.saudaraPerempuan,
+                            bagian: 'Ashabah (1x)',
+                            nominal: bagianSaudaraPerempuan,
+                            perOrang: bagianPerUnit
+                        });
+                    }
+                    sisaHarta = 0;
+                }
+            }
+
+            // Tampilkan hasil
+            displayWarisResult(pembagian, totalHarta, sisaHarta);
+        }
+
+        function displayWarisResult(pembagian, totalHarta, sisaHarta) {
+            const resultDiv = document.getElementById('warisResult');
+            
+            if (pembagian.length === 0) {
+                resultDiv.innerHTML = '<div class="result show">Tidak ada ahli waris yang dipilih!</div>';
+                return;
+            }
+
+            let html = '<div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 15px;">';
+            html += `<h4 style="color: #667eea; margin-bottom: 10px;">Total Harta: Rp ${Math.round(totalHarta).toLocaleString('id-ID')}</h4>`;
+            html += '</div>';
+
+            pembagian.forEach(item => {
+                html += '<div class="waris-result-item">';
+                html += `<h4>${item.nama} ${item.jumlah > 1 ? `(${item.jumlah} orang)` : ''}</h4>`;
+                html += `<p>Bagian: ${item.bagian}</p>`;
+                html += `<p class="bagian">Total: Rp ${Math.round(item.nominal).toLocaleString('id-ID')}</p>`;
+                if (item.perOrang) {
+                    html += `<p style="color: #28a745;">Per orang: Rp ${Math.round(item.perOrang).toLocaleString('id-ID')}</p>`;
+                }
+                html += '</div>';
+            });
+
+            if (sisaHarta > 0) {
+                html += '<div style="background: #fff3cd; padding: 15px; border-radius: 10px; margin-top: 15px;">';
+                html += `<p style="color: #856404; font-weight: bold;">Sisa Harta: Rp ${Math.round(sisaHarta).toLocaleString('id-ID')}</p>`;
+                html += '<p style="color: #856404; font-size: 12px; margin-top: 5px;">*Sisa harta dapat dibagikan sebagai ashabah atau sesuai ketentuan lebih lanjut</p>';
+                html += '</div>';
+            }
+
+            html += '<div style="background: #d1ecf1; padding: 15px; border-radius: 10px; margin-top: 15px; font-size: 12px;">';
+            html += '<p style="color: #0c5460; margin: 0;"><strong>Catatan:</strong> Perhitungan ini adalah perhitungan sederhana berdasarkan hukum waris Islam. Untuk kasus yang lebih kompleks atau penentuan yang lebih akurat, disarankan untuk berkonsultasi dengan ahli waris atau ulama.</p>';
+            html += '</div>';
+
+            resultDiv.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
